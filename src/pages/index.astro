@@ -1,14 +1,15 @@
 ---
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
-// 1. Ambil data artikel dan urutkan berdasarkan tanggal terbaru
+// 1. Ambil data artikel dan urutkan dari tanggal terbaru
 const allArticles = await getCollection('articles');
 const sortedArticles = allArticles.sort(
   (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
 
-// 2. Pisahkan artikel Featured
+// 2. Pisahkan artikel berstatus Featured
 const featuredArticles = sortedArticles.filter((post) => post.data.featured);
 
 // 3. Kelompokkan artikel berdasarkan Tahun untuk Timeline
@@ -21,7 +22,7 @@ const articlesByYear = sortedArticles.reduce((acc, article) => {
 
 const years = Object.keys(articlesByYear).sort((a, b) => Number(b) - Number(a));
 
-// 4. Ambil daftar tag unik
+// 4. Kumpulkan daftar tag unik untuk filter
 const allTags = [...new Set(sortedArticles.flatMap((post) => post.data.tags))];
 
 // Helper format tanggal singkat (contoh: 18 Okt)
@@ -35,70 +36,94 @@ const formatShortDate = (date: Date) =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Portal Tulisan & Personal Branding</title>
     <meta name="description" content="Arsip linimasa artikel Medium dan eksplorasi topik teknologi." />
+
+    <!-- Script inline anti-flicker: mencegah layar putih sesaat saat refresh di mode gelap -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
   </head>
-  <body class="bg-slate-950 text-slate-200 antialiased selection:bg-emerald-500 selection:text-slate-950">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-200">
     <main class="max-w-3xl mx-auto px-6 py-16">
       
-      <!-- HERO PERSONAL BRANDING -->
-      <header class="border-b border-slate-800 pb-12 mb-12">
-        <div class="flex items-center gap-4 mb-5">
-          <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-emerald-500/20">
-            IQ
+      <!-- 1. HERO PERSONAL BRANDING -->
+      <header class="border-b border-slate-200 dark:border-slate-800 pb-12 mb-12">
+        <div class="flex items-center justify-between gap-4 mb-5">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-emerald-500/20">
+              IQ
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Izhar Qawiyy
+              </h1>
+              <p class="text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+                AI Builder • Python Developer • Lifelong Learner
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Izhar Qawiyy
-            </h1>
-            <p class="text-emerald-400 text-sm font-medium">
-              AI Builder • Python Developer • Lifelong Learner
-            </p>
-          </div>
+
+          <!-- Tombol Switch Dark/Light Mode -->
+          <ThemeToggle />
         </div>
 
-        <p class="text-slate-400 leading-relaxed mb-6">
+        <p class="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
           Selamat datang di web portal saya. Seluruh tulisan panjang saya publikasikan secara berkala di 
-          <span class="text-slate-200 font-medium">Medium</span>. Halaman ini berfungsi sebagai arsip terstruktur, linimasa waktu, dan navigasi topik agar memudahkan Anda mencari bacaan yang relevan.
+          <span class="text-slate-900 dark:text-slate-200 font-medium">Medium</span>. Halaman ini berfungsi sebagai arsip terstruktur, linimasa waktu, dan navigasi topik agar memudahkan Anda mencari bacaan yang relevan.
         </p>
 
         <div class="flex flex-wrap gap-3 text-sm">
           <a href="https://medium.com/@username" target="_blank" rel="noopener noreferrer" 
-             class="px-4 py-2 rounded-lg bg-white text-slate-950 font-semibold hover:bg-slate-200 transition">
+             class="px-4 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold hover:bg-slate-800 dark:hover:bg-slate-200 transition shadow-sm">
             Profil Medium ↗
           </a>
           <a href="https://github.com/username" target="_blank" rel="noopener noreferrer" 
-             class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700 transition">
+             class="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-700 transition">
             GitHub
           </a>
           <a href="https://linkedin.com/in/username" target="_blank" rel="noopener noreferrer" 
-             class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700 transition">
+             class="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-700 transition">
             LinkedIn
           </a>
         </div>
       </header>
 
-      <!-- FEATURED ARTICLES -->
+      <!-- 2. ARTIKEL PILIHAN (FEATURED) -->
       {featuredArticles.length > 0 && (
         <section class="mb-14">
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-4 flex items-center gap-2">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-4 flex items-center gap-2">
             <span>★ Sorotan Utama</span>
           </h2>
           <div class="grid gap-4">
             {featuredArticles.map((post) => (
               <a href={post.data.mediumUrl} target="_blank" rel="noopener noreferrer"
-                 class="group block p-6 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/50 transition">
-                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                 class="group block p-6 rounded-xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/60 dark:hover:border-emerald-500/50 shadow-sm hover:shadow transition">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
                   <span>{formatShortDate(post.data.pubDate)} {new Date(post.data.pubDate).getFullYear()}</span>
                   <span>{post.data.readTime}</span>
                 </div>
-                <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition mb-2">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition mb-2">
                   {post.data.title} ↗
                 </h3>
-                <p class="text-sm text-slate-400 leading-relaxed mb-4">
+                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
                   {post.data.summary}
                 </p>
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.map((tag) => (
-                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent">
                       #{tag}
                     </span>
                   ))}
@@ -109,40 +134,40 @@ const formatShortDate = (date: Date) =>
         </section>
       )}
 
-      <!-- FILTER & SEARCH -->
+      <!-- 3. FILTER & PENCARIAN -->
       <section class="mb-10">
         <div class="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center mb-4">
-          <h2 class="text-xl font-bold text-white">Linimasa Artikel</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Linimasa Artikel</h2>
           <input 
             id="searchInput"
             type="text" 
             placeholder="Cari judul atau topik..." 
-            class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            class="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 shadow-sm"
           />
         </div>
 
         <div class="flex flex-wrap gap-2" id="tagContainer">
-          <button data-tag="all" class="tag-btn active px-3 py-1 rounded-full text-xs font-medium bg-emerald-500 text-slate-950 transition">
+          <button data-tag="all" class="tag-btn active px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500 text-slate-950 shadow-sm border border-transparent transition">
             Semua ({sortedArticles.length})
           </button>
           {allTags.map((tag) => (
-            <button data-tag={tag} class="tag-btn px-3 py-1 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">
+            <button data-tag={tag} class="tag-btn px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
               #{tag}
             </button>
           ))}
         </div>
       </section>
 
-      <!-- TIMELINE CONTENT -->
+      <!-- 4. TIMELINE KONTEN PER TAHUN -->
       <section id="timelineContainer" class="space-y-12">
         {years.map((year) => (
           <div class="year-group" data-year={year}>
             <div class="flex items-center gap-3 mb-6">
-              <span class="text-2xl font-extrabold text-white">{year}</span>
-              <span class="h-px flex-1 bg-slate-800"></span>
+              <span class="text-2xl font-extrabold text-slate-900 dark:text-white">{year}</span>
+              <span class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></span>
             </div>
 
-            <div class="relative border-l-2 border-slate-800 ml-3 pl-6 space-y-8">
+            <div class="relative border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-6 space-y-8">
               {articlesByYear[year].map((post) => (
                 <article 
                   class="article-item relative group"
@@ -150,10 +175,11 @@ const formatShortDate = (date: Date) =>
                   data-summary={post.data.summary.toLowerCase()}
                   data-tags={post.data.tags.join(',')}
                 >
-                  <span class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-950 border-2 border-slate-600 group-hover:border-emerald-400 group-hover:bg-emerald-400 transition"></span>
+                  <!-- Titik Indikator Timeline -->
+                  <span class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-600 group-hover:border-emerald-500 group-hover:bg-emerald-500 transition"></span>
 
-                  <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-1">
-                    <time class="font-mono text-emerald-400/90 font-medium">
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <time class="font-mono text-emerald-600 dark:text-emerald-400 font-medium">
                       {formatShortDate(post.data.pubDate)}
                     </time>
                     <span>•</span>
@@ -161,19 +187,19 @@ const formatShortDate = (date: Date) =>
                   </div>
 
                   <a href={post.data.mediumUrl} target="_blank" rel="noopener noreferrer" class="block">
-                    <h3 class="text-lg font-semibold text-slate-100 group-hover:text-emerald-400 transition mb-1.5">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition mb-1.5">
                       {post.data.title}
                       <span class="inline-block text-xs ml-1 opacity-60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition">↗</span>
                     </h3>
                   </a>
 
-                  <p class="text-sm text-slate-400 leading-relaxed mb-3">
+                  <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
                     {post.data.summary}
                   </p>
 
                   <div class="flex flex-wrap gap-1.5">
                     {post.data.tags.map((tag) => (
-                      <span class="text-[11px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
+                      <span class="text-[11px] px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
                         #{tag}
                       </span>
                     ))}
@@ -185,12 +211,13 @@ const formatShortDate = (date: Date) =>
         ))}
       </section>
 
-      <footer class="mt-20 pt-8 border-t border-slate-900 text-center text-xs text-slate-500">
+      <!-- 5. FOOTER -->
+      <footer class="mt-20 pt-8 border-t border-slate-200 dark:border-slate-900 text-center text-xs text-slate-500">
         © {new Date().getFullYear()} Izhar Qawiyy • Portal Linimasa Medium
       </footer>
     </main>
 
-    <!-- Client-side Search and Filter Script -->
+    <!-- Script Saring Kategori & Pencarian Dinamis -->
     <script>
       const searchInput = document.getElementById('searchInput') as HTMLInputElement;
       const tagButtons = document.querySelectorAll('.tag-btn');
@@ -198,6 +225,10 @@ const formatShortDate = (date: Date) =>
       const yearGroups = document.querySelectorAll('.year-group');
 
       let activeTag = 'all';
+
+      // Daftar class tombol saat aktif vs tidak aktif
+      const INACTIVE_CLASSES = ['bg-white', 'dark:bg-slate-900', 'border-slate-200', 'dark:border-slate-800', 'text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-white', 'font-medium'];
+      const ACTIVE_CLASSES = ['bg-emerald-500', 'text-slate-950', 'font-semibold', 'shadow-sm', 'border-transparent'];
 
       function filterArticles() {
         const query = searchInput?.value.toLowerCase().trim() || '';
@@ -226,11 +257,12 @@ const formatShortDate = (date: Date) =>
       tagButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           tagButtons.forEach((b) => {
-            b.classList.remove('bg-emerald-500', 'text-slate-950');
-            b.classList.add('bg-slate-900', 'text-slate-400', 'border', 'border-slate-800');
+            b.classList.remove(...ACTIVE_CLASSES);
+            b.classList.add(...INACTIVE_CLASSES);
           });
-          btn.classList.add('bg-emerald-500', 'text-slate-950');
-          btn.classList.remove('bg-slate-900', 'text-slate-400', 'border', 'border-slate-800');
+
+          btn.classList.remove(...INACTIVE_CLASSES);
+          btn.classList.add(...ACTIVE_CLASSES);
 
           activeTag = (btn as HTMLElement).dataset.tag || 'all';
           filterArticles();
