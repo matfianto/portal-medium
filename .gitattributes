@@ -1,0 +1,27 @@
+# Atur deteksi teks otomatis dan paksa LF di repositori
+* text=auto eol=lf
+
+# File kode, styling, dan konfigurasi wajib LF
+*.astro text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+.gitignore text eol=lf
+
+# File aset biner (jangan disentuh agar tidak rusak)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
